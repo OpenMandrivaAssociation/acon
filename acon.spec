@@ -19,6 +19,7 @@ Source1:	%{name}.sh
 Source2:	%{name}-1.0.4-mdk.tar.bz2
 Patch:		%{name}-1.0.4-mdk.patch.bz2
 URL:		http://members.tripod.com/ahmedahamid/arabic/arabic.html
+BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 Requires(post): rpm-helper
 Requires(preun):rpm-helper
 
