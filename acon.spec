@@ -1,6 +1,6 @@
 %define	name	acon
 %define	version	1.0.5
-%define	release	%mkrel 6
+%define	release	%mkrel 7
 # Arch-independent stuff which ought to be in DATADIR
 %define kbddir	%{_prefix}/lib/kbd
 %define acondir	%{_prefix}/lib/acon
