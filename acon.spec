@@ -17,7 +17,7 @@ Source1:	%{name}.sh
 # author refuses to integrate Hebrew support, so we need to provide the
 # needed files ourselves and do some small patches
 Source2:	%{name}-1.0.4-mdk.tar.bz2
-Patch:		%{name}-1.0.4-mdk.patch.bz2
+Patch0:		%{name}-1.0.4-mdk.patch.bz2
 URL:		http://members.tripod.com/ahmedahamid/arabic/arabic.html
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 Requires(post): rpm-helper
