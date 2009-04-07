@@ -17,7 +17,8 @@ Source1:	%{name}.sh
 # author refuses to integrate Hebrew support, so we need to provide the
 # needed files ourselves and do some small patches
 Source2:	%{name}-1.0.4-mdk.tar.bz2
-Patch0:		%{name}-1.0.4-mdk.patch.bz2
+Patch0:		%{name}-1.0.4-mdk.patch
+Patch1:		acon-1.0.5-fix-str-fmt.patch
 URL:		http://members.tripod.com/ahmedahamid/arabic/arabic.html
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 Requires(post): rpm-helper
@@ -36,10 +37,11 @@ in the word.
 %setup -q -n %{name} -a2
 
 %patch0 -p1 -b .mdkpatch
+%patch1 -p0 -b .str
 
 %build
 %serverbuild
-%make CFLAGS="$RPM_OPT_FLAGS"
+%make CFLAGS="%{optflags}"
 
 %install
 rm -rf $RPM_BUILD_ROOT
