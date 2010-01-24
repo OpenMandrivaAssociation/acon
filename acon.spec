@@ -1,6 +1,6 @@
 %define	name	acon
 %define	version	1.0.5
-%define	release	%mkrel 10
+%define	release	%mkrel 11
 # Arch-independent stuff which ought to be in DATADIR
 %define kbddir	%{_prefix}/lib/kbd
 %define acondir	%{_prefix}/lib/acon
@@ -10,7 +10,7 @@ Summary(ar):	دعم اللغة العربية في لينكس (للشاشات ا
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv2+
 Group:		System/Internationalization
 Source:		http://members.tripod.com/ahmedahamid/arabic/acon-%{version}.tar.bz2
 Source1:	%{name}.sh
