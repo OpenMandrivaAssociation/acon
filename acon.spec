@@ -44,41 +44,41 @@ in the word.
 %make CFLAGS="%{optflags}"
 
 %install
-rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_bindir}
+rm -rf %{buildroot}
+install -d %{buildroot}%{_bindir}
 %makeinstall_std
 
-install -m 755 %{SOURCE1} -D $RPM_BUILD_ROOT%{_initrddir}/%{name}
+install -m 755 %{SOURCE1} -D %{buildroot}%{_initrddir}/%{name}
 
-rm $RPM_BUILD_ROOT%{acondir}/keymaps/*
+rm %{buildroot}%{acondir}/keymaps/*
 
 %ifarch %{ix86} alpha amd64
-cp keymaps/i386/* $RPM_BUILD_ROOT%{acondir}/keymaps/
-mkdir -p $RPM_BUILD_ROOT%{kbddir}/keymaps/i386/qwerty
-(cd $RPM_BUILD_ROOT%{kbddir}/keymaps/i386/qwerty
+cp keymaps/i386/* %{buildroot}%{acondir}/keymaps/
+mkdir -p %{buildroot}%{kbddir}/keymaps/i386/qwerty
+(cd %{buildroot}%{kbddir}/keymaps/i386/qwerty
  cp ../../../../acon/keymaps/*map .
  gzip -9 *map
 )
 %endif
 %ifarch sparc sparc64
-cp keymaps/sun/* $RPM_BUILD_ROOT%{acondir}/keymaps/
-mkdir -p $RPM_BUILD_ROOT%{kbddir}/keymaps/sun
-(cd $RPM_BUILD_ROOT%{kbddir}/keymaps/sun
+cp keymaps/sun/* %{buildroot}%{acondir}/keymaps/
+mkdir -p %{buildroot}%{kbddir}/keymaps/sun
+(cd %{buildroot}%{kbddir}/keymaps/sun
  cp ../../../%{name}/keymaps/*map .
  gzip -9 *map
 )
 %endif
 %ifarch ppc
-cp keymaps/mac/* $RPM_BUILD_ROOT%{acondir}/keymaps/
-mkdir -p $RPM_BUILD_ROOT%{kbddir}/keymaps/mac
-(cd $RPM_BUILD_ROOT%{kbddir}/keymaps/mac
+cp keymaps/mac/* %{buildroot}%{acondir}/keymaps/
+mkdir -p %{buildroot}%{kbddir}/keymaps/mac
+(cd %{buildroot}%{kbddir}/keymaps/mac
  cp ../../../acon/keymaps/*map .
  gzip -9 *map
 )
 %endif
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %post
 %_post_service %{name}
