@@ -1,0 +1,22 @@
+--- child.c.str	2009-04-07 08:54:21.000000000 +0200
++++ child.c	2009-04-07 08:54:41.000000000 +0200
+@@ -263,7 +263,7 @@
+ 	char charset[512];
+ 
+ 	setlocale(LC_ALL,"");
+-	snprintf(charset,sizeof(charset),nl_langinfo(_NL_CTYPE_CODESET_NAME));
++	snprintf(charset,sizeof(charset),"%s",nl_langinfo(_NL_CTYPE_CODESET_NAME));
+ 
+ 	uni.entry_ct=256;
+ 	uni.entries=entries;
+--- arabicfont.c.str	2009-04-07 08:54:49.000000000 +0200
++++ arabicfont.c	2009-04-07 08:55:00.000000000 +0200
+@@ -774,7 +774,7 @@
+ 		char charset[512];
+ 
+ 		setlocale(LC_ALL,"");
+-		snprintf(charset,sizeof(charset),
++		snprintf(charset,sizeof(charset),"%s",
+ 				nl_langinfo(_NL_CTYPE_CODESET_NAME));
+ 
+ 		path=malloc(255);

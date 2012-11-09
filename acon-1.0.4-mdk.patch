@@ -1,0 +1,410 @@
+--- acon/Make.header.mdkpatch	Mon Sep 13 07:42:22 1999
++++ acon/Make.header	Sat Jul  1 16:06:07 2000
+@@ -1,10 +1,13 @@
+ # Edit this file to define constants and custom build targets.
+ # Please refer to the makemake documentation for more information.
+ 
+-FONTS := fonts/sample.f16
+-KEYMAPS := keymaps/iso8859-6.map keymaps/cp-1256.map
+-TRANSLATIONS := translations/iso-8859-6 translations/cp-1256
+-DATAINSDIR := /usr/lib/acon
++FONTS := fonts/acon_ar.f16 fonts/acon_fa.f16 \
++	fonts/acon_he.f16 fonts/acon_yi.f16
++KEYMAPS := keymaps/iso8859-6.map keymaps/cp-1256.map \
++        keymaps/acon_control.map
++TRANSLATIONS := translations/iso-8859-6 translations/cp-1256 \
++        translations/isiri-3342 translations/iso-8859-8 translations/cp-1255
++DATAINSDIR := ${DESTDIR}/usr/lib/acon
+ # Useful directories
+ 
+ MYCODEDIR := .
+@@ -59,7 +62,7 @@
+ 
+ .PHONY : install
+ install: acon
+-	install -m 4711 acon /usr/bin
++	install -m 4711 acon ${DESTDIR}/usr/bin
+ 	install -d ${DATAINSDIR}
+ 	install -d ${DATAINSDIR}/keymaps
+ 	install -d ${DATAINSDIR}/fonts
+--- acon/Makefile.mdkpatch	Mon Sep 13 07:43:55 1999
++++ acon/Makefile	Sat Jul  1 16:06:07 2000
+@@ -1,10 +1,13 @@
+ # Edit this file to define constants and custom build targets.
+ # Please refer to the makemake documentation for more information.
+ 
+-FONTS := fonts/sample.f16
+-KEYMAPS := keymaps/iso8859-6.map keymaps/cp-1256.map
+-TRANSLATIONS := translations/iso-8859-6 translations/cp-1256
+-DATAINSDIR := /usr/lib/acon
++FONTS := fonts/acon_ar.f16 fonts/acon_fa.f16 \
++	fonts/acon_he.f16 fonts/acon_yi.f16
++KEYMAPS := keymaps/iso8859-6.map keymaps/cp-1256.map \
++	keymaps/acon_control.map
++TRANSLATIONS := translations/iso-8859-6 translations/cp-1256 \
++	translations/isiri-3342 translations/iso-8859-8 translations/cp-1255
++DATAINSDIR := $(DESTDIR)/usr/lib/acon
+ # Useful directories
+ 
+ MYCODEDIR := .
+@@ -16,12 +19,12 @@
+ # makemake variables
+ 
+ LINKER       := gcc
+-DEPENDFLAGS  := -g -Wall ${SEARCHDIRS}
++DEPENDFLAGS  := ${RPM_OPT_FLAGS:-g -Wall} ${SEARCHDIRS}
+ TOUCHHEADERS := ${MYCODEDIR}/*.h
+ 
+ # C
+ 
+-CC     := gcc
++CC     := gcc -Wall
+ CFLAGS  = ${DEPENDFLAGS}
+ 
+ # C++
+@@ -59,7 +62,7 @@
+ 
+ .PHONY : install
+ install: acon
+-	install -m 4711 acon /usr/bin
++	install -m 4711 acon $(DESTDIR)/usr/bin
+ 	install -d ${DATAINSDIR}
+ 	install -d ${DATAINSDIR}/keymaps
+ 	install -d ${DATAINSDIR}/fonts
+--- acon/arabicfont.c.mdkpatch	Sun Sep 19 02:56:04 1999
++++ acon/arabicfont.c	Sat Jul  1 19:13:38 2000
+@@ -1,6 +1,7 @@
+ /*
+  * acon a utility to facilitate the right to left writing
+  * Copyright 1999 Ahmed Abdel-Hamid Mohamed <ahmedam@mail.usa.com>
++ * I18N changes: 2000 Pablo Saratxaga <pablo@mandrakesoft.com>
+  *
+  * This program is free software; you can redistribute it and/or modify it under
+  * the terms of the GNU General Public License as published by the Free Software
+@@ -26,12 +27,13 @@
+ #include <string.h>
+ #include <ctype.h>
+ #include <sys/stat.h>
++#include <locale.h>
++#include <langinfo.h>
+ #include "acon.h"
+ #include "child.h"
+ #include "render.h"
+ #include "acon.h"
+ 
+-
+ /* 8x32 font*/
+ unsigned char fonttable[]={
+ /*0  */	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -376,6 +378,16 @@
+ 	{56,56},
+ 	{57,57},
+ 	{58,58},
++	{0xb0,0xb0},
++	{0xb1,0xb1},
++	{0xb2,0xb2},
++	{0xb3,0xb3},
++	{0xb4,0xb4},
++	{0xb5,0xb5},
++	{0xb6,0xb6},
++	{0xb7,0xb7},
++	{0xb8,0xb8},
++	{0xb9,0xb9},
+ 
+ /*special characters which follow the direction of writing  groub 5*/
+ 	{255,5},
+@@ -596,14 +608,39 @@
+ 
+ 	if(!path)
+ 	{
+-	/*load default*/
+-		if(setfont(tty,16,fonttable))
+-		{
+-		    puts("Error in arabicfont.c:PIO_FONT\v");
+-		    return;
++		char *lang;
++
++		lang=getenv("LC_ALL");
++		if (!lang) lang=getenv("LC_CTYPE");
++		if (!lang) lang=getenv("LANGUAGE");
++		if (!lang) lang=getenv("LANG");
++		if (!lang) lang="C";
++
++		path=malloc(255);
++		
++		if (!strncmp(lang,"ar",2)) /* Arabic */
++		       strcpy(path,"acon_ar.f16");
++		else if (!strncmp(lang,"fa",2)) /* Farsi */
++		       strcpy(path,"acon_fa.f16");
++		else if (!strncmp(lang,"he",2)) /* Hebrew */
++		       strcpy(path,"acon_he.f16");
++		else if (!strncmp(lang,"ps",2)) /* Pashto */
++		       strcpy(path,"acon_ps.f16");
++		else if (!strncmp(lang,"ur",2)) /* Urdu */
++		       strcpy(path,"acon_ur.f16");
++		else if (!strncmp(lang,"yi",2)) /* Yiddish */
++		       strcpy(path,"acon_yi.f16");
++		else { /*load default font*/
++			if(setfont(tty,16,fonttable))
++			{
++			    puts("Error in arabicfont.c:PIO_FONT\v");
++			    return;
++			}
++			return;
+ 		}
+ 	}
+-	else
++
++	if (path)
+ 	{
+ 		char tmp[300];
+ 		int i,z,y;
+@@ -612,10 +649,10 @@
+ 
+ 		y=16;	/*Only support 8x16 fonts now*/
+ 
+-		if(path[0]!='/')
+-			sprintf(tmp,"%s/fonts/%s",DATAPATH,path);
+-		else
++		if(strchr(path,'/'))
+ 			strcpy(tmp,path);
++		else
++			sprintf(tmp,"%s/fonts/%s",DATAPATH,path);
+ 		set_user_id();
+ 		if((fp=fopen(tmp,"r"))==NULL)
+ 		{
+@@ -698,13 +735,13 @@
+ 
+ 	if(path)
+ 	{
+-		if(path[0]!='/')
+-			sprintf(tmp,"loadkeys %s/keymaps/%s >& /dev/null",DATAPATH,path);
+-		else
++		if(strchr(path,'/'))
+ 			sprintf(tmp,"loadkeys %s >& /dev/null",path);
++		else
++			sprintf(tmp,"loadkeys %s/keymaps/%s >& /dev/null",DATAPATH,path);
+ 	}
+ 	else
+-		sprintf(tmp,"loadkeys %s/keymaps/iso8859-6.map",DATAPATH);
++		sprintf(tmp,"loadkeys %s/keymaps/acon_control.map",DATAPATH);
+ 	
+ 	if(my_system(tmp))
+ 		printf("Error executing : %s \n",tmp);
+@@ -734,15 +771,37 @@
+ 	
+ 	if(!path)
+ 	{
+-		memcpy(isocp,def_isocp,sizeof(def_isocp));
+-		memcpy(lforms,def_lforms,sizeof(def_lforms));
+-		memcpy(braces,def_braces,sizeof(def_braces));
+-		memcpy(pairs,def_pairs,sizeof(def_pairs));
+-		memcpy(hendinums,def_hendinums,sizeof(def_hendinums));
+-		return;
++		char charset[512];
++
++		setlocale(LC_ALL,"");
++		snprintf(charset,sizeof(charset),
++				nl_langinfo(_NL_CTYPE_CODESET_NAME));
++
++		path=malloc(255);
++	
++		if (!strncasecmp(charset,"iso-8859-6",10) ||
++		    !strncasecmp(charset,"asmo-449+",9) ||
++		    !strncasecmp(charset,"asmo_449+",9)) /* ISO Arabic */
++		       strcpy(path,"iso-8859-6");
++		else if (!strncasecmp(charset,"cp1256",6)) /* MS Arabic */
++		       strcpy(path,"cp-1256");
++		else if (!strncasecmp(charset,"isiri-3342",10)) /* Farsi */
++		       strcpy(path,"isiri-3342");
++		else if (!strncasecmp(charset,"iso-8859-8",10)) /* Hebrew */
++		       strcpy(path,"iso-8859-8");
++		else if (!strncasecmp(charset,"cp1255",6)) /* Yiddish */
++		       strcpy(path,"cp-1255");
++		else {
++			memcpy(isocp,def_isocp,sizeof(def_isocp));
++			memcpy(lforms,def_lforms,sizeof(def_lforms));
++			memcpy(braces,def_braces,sizeof(def_braces));
++			memcpy(pairs,def_pairs,sizeof(def_pairs));
++			memcpy(hendinums,def_hendinums,sizeof(def_hendinums));
++			return;
++		}
+ 	}
+ 
+-	if(path[0]!='/')
++	if(!strchr(path,'/'))
+ 		sprintf(tmp,"%s/translations/%s",DATAPATH,path);
+ 	else
+ 		strcpy(tmp,path);
+--- acon/child.c.mdkpatch	Fri May 19 19:57:11 2000
++++ acon/child.c	Sat Jul  1 19:08:08 2000
+@@ -1,6 +1,7 @@
+ /*
+  * acon a utility to facilitate the right to left writing
+  * Copyright 1999 Ahmed Abdel-Hamid Mohamed <ahmedam@mail.usa.com>
++ * I18N changes: 2000 Pablo Saratxaga <pablo@mandrakesoft.com>
+  *
+  * This program is free software; you can redistribute it and/or modify it under
+  * the terms of the GNU General Public License as published by the Free Software
+@@ -22,6 +23,8 @@
+ #include <fcntl.h>
+ #include <linux/vt.h>
+ #include <sys/time.h>
++#include <locale.h>
++#include <langinfo.h>
+ #include "acon.h"
+ #include "child.h"
+ #include <linux/kd.h>
+@@ -32,7 +35,6 @@
+ #include <termios.h>
+ #include <errno.h>
+ #include <signal.h>
+-#include "acon.h"
+ #include "arabicfont.h"
+ #include "render.h"
+ #include "menu.h"
+@@ -40,6 +42,65 @@
+ int consoles[63],consolesn=0;
+ int needrefreshconsole=0,useunicode=0;
+ 
++int cp1255_to_unicode_tab[] = { /* 0x80-0xFF */
++	0x20AC,  0x81,0x201A,0x0192,0x201E,0x2026,0x2020,0x2021,
++	0x02C6,0x2030,  0x8a,0x2039,  0x8c,  0x8d,  0x8e,  0x8f,
++	  0x90,0x2018,0x2019,0x201C,0x201D,0x2022,0x2013,0x2014,
++	0x02DC,0x2122,  0x9a,0x203A,  0x9c,  0x9d,  0x9e,  0x9f,
++	0x00A0,0x00A1,0x00A2,0x00A3,0x20AA,0x00A5,0x00A6,0x00A7,
++	0x00A8,0x00A9,0x00D7,0x00AB,0x00AC,0x00AD,0x00AE,0x00AF,
++	0x00B0,0x00B1,0x00B2,0x00B3,0x00B4,0x00B5,0x00B6,0x00B7,
++	0x00B8,0x00B9,0x00F7,0x00BB,0x00BC,0x00BD,0x00BE,0x00BF,
++	0x05B0,0x05B1,0x05B2,0x05B3,0x05B4,0x05B5,0x05B6,0x05B7,
++	0x05B8,0x05B9,  0xca,0x05BB,0x05BC,0x05BD,0x05BE,0x05BF,
++	0x05C0,0x05C1,0x05C2,0x05C3,0x05F0,0x05F1,0x05F2,0x05F3,
++	0x05F4,  0xd9,  0xda,  0xdb,  0xdc,  0xdd,  0xde,  0xdf,
++	0x05D0,0x05D1,0x05D2,0x05D3,0x05D4,0x05D5,0x05D6,0x05D7,
++	0x05D8,0x05D9,0x05DA,0x05DB,0x05DC,0x05DD,  0xee,0x05DF,
++	0x05E0,0x05E1,0x05E2,0x05E3,0x05E4,0x05E5,0x05E6,0x05E7,
++	0x05E8,0x05E9,0x05E9,  0xfb,  0xfc,0x200E,0x200F,  0xff
++};
++
++int cp1256_to_unicode_tab[] = { /* 0x80-0xFF */
++	0x20AC,0x067E,0x201A,0x0192,0x201E,0x2026,0x2020,0x2021,
++	0x02C6,0x2030,0x0679,0x2039,0x0152,0x0686,0x0698,0x0688,
++	0x06AF,0x2018,0x2019,0x201C,0x201D,0x2022,0x2013,0x2014,
++	0x06A9,0x2122,0x0691,0x203A,0x0153,0x200C,0x200D,0x06BA,
++	0x00A0,0x060C,0x00A2,0x00A3,0x00A4,0x00A5,0x00A6,0x00A7,
++	0x00A8,0x00A9,0x06BE,0x00AB,0x00AC,0x00AD,0x00AE,0x00AF,
++	0x00B0,0x00B1,0x00B2,0x00B3,0x00B4,0x00B5,0x00B6,0x00B7,
++	0x00B8,0x00B9,0x061B,0x00BB,0x00BC,0x00BD,0x00BE,0x061F,
++	0x06C1,0x0621,0x0622,0x0623,0x0624,0x0625,0x0626,0x0627,
++	0x0628,0x0629,0x062A,0x062B,0x062C,0x062D,0x062E,0x062F,
++	0x0630,0x0631,0x0632,0x0633,0x0634,0x0635,0x0636,0x00D7,
++	0x0637,0x0638,0x0639,0x063A,0x0640,0x0641,0x0642,0x0643,
++	0x00E0,0x0644,0x00E2,0x0645,0x0646,0x0647,0x0648,0x00E7,
++	0x00E8,0x00E9,0x00EA,0x00EB,0x0649,0x064A,0x00EE,0x00EF,
++	0x064B,0x064C,0x064D,0x064E,0x00F4,0x064F,0x0650,0x00F7,
++	0x0651,0x00F9,0x0652,0x00FB,0x00FC,0x200E,0x200F,0x00ff
++};
++
++int isiri_3342_to_unicode_tab[] = { /* 0xA0-0xFF */
++	0x0020,0x200C,0x200D,0x0021,0x00A4,0x066A,0x002E,0x066C,
++	0x0029,0x0028,0x00D7,0x002B,0x060C,0x002D,0x066B,0x002F,
++	0x06F0,0x06F1,0x06F2,0x06F3,0x06F4,0x06F5,0x06F6,0x06F7,
++	0x06F8,0x06F9,0x003A,0x061B,0x003C,0x003D,0x003E,0x061F,
++	0x0622,0x0627,0x0621,0x0628,0x067E,0x062A,0x062B,0x062C,
++	0x0686,0x062D,0x062E,0x062F,0x0630,0x0631,0x0632,0x0698,
++	0x0633,0x0634,0x0635,0x0636,0x0637,0x0638,0x0639,0x063A,
++	0x0641,0x0642,0x06A9,0x06AF,0x0644,0x0645,0x0646,0x0648,
++	0x0647,0x06CC,0x005D,0x005B,0x007D,0x007B,0x00AB,0x00BB,
++	/* 0xec,0xed,0xee,0xef not defined */
++	0x002A,0x0640,0x007C,0x005C,0xec  ,0xed  ,0xee  ,0xef  ,
++	0x064E,0x0650,0x064F,0x064B,0x064D,0x064C,0x0651,0x0652,
++	0x0623,0x0624,0x0625,0x0626,0x0629,0x0643,0x064A,0x007F
++};
++
++int acon_font_graph_tab[] = { /* 0x80 - 0x8a */
++	0x2502,0x2500,0x253c,0x2518,0x2514,0x2510,0x250c,0x2524,
++	0x251c,0x2534,0x252c
++};
++
+ void refreshconsole()
+ {
+ 	needrefreshconsole=1;
+@@ -199,13 +260,49 @@
+ 	struct unipair	entries[256];
+ 	struct unimapinit unimapinit={0,0,1};
+ 	unsigned int i;
++	char charset[512];
++
++	setlocale(LC_ALL,"");
++	snprintf(charset,sizeof(charset),nl_langinfo(_NL_CTYPE_CODESET_NAME));
+ 
+ 	uni.entry_ct=256;
+ 	uni.entries=entries;
+-	for(i=0;i<0xa0;i++)
++	for(i=0;i<0x7f;i++)
+ 		entries[i].unicode=entries[i].fontpos=i;
+-	for(i=0xa0;i<256;i++)
+-		entries[i].unicode=0x600+i-0xa0,entries[i].fontpos=i;
++	for(i=0x80;i<0x8b;i++) {
++		entries[i].unicode=acon_font_graph_tab[i-0x80];
++		entries[i].fontpos=i;
++	}
++	for(i=0x8b;i<0xa0;i++)
++		entries[i].unicode=entries[i].fontpos=i;
++
++	if (!strncasecmp(charset,"iso-8859-6",10) ||
++	    !strncasecmp(charset,"asmo-449+",9) ||
++	    !strncasecmp(charset,"asmo_449+",9)) { /* ISO Arabic */
++		for(i=0xa0;i<256;i++)
++			entries[i].unicode=0x600+i-0xa0;
++			entries[i].fontpos=i;
++	} else if (!strncasecmp(charset,"cp1256",6)) { /* MS Arabic */
++		for(i=0xa0;i<256;i++) {
++			entries[i].unicode=cp1256_to_unicode_tab[i-0xa0+0x20];
++			entries[i].fontpos=i;
++		}
++	} else if (!strncasecmp(charset,"isiri-3342",10)) { /* Farsi */
++		for(i=0xa0;i<256;i++) {
++			entries[i].unicode=isiri_3342_to_unicode_tab[i-0xa0];
++			entries[i].fontpos=i;
++		}
++	} else if (!strncasecmp(charset,"iso-8859-8",10) ||
++		   !strncasecmp(charset,"cp1255",6)) { /* Hebrew & Yiddish */
++		for(i=0xa0;i<256;i++) {
++			entries[i].unicode=cp1255_to_unicode_tab[i-0xa0+0x20];
++			entries[i].fontpos=i;
++		}
++	} else {
++		for(i=0xa0;i<256;i++)
++			entries[i].unicode=0x600+i-0xa0;
++			entries[i].fontpos=i;
++	}
+ 	
+ 	set_acon_id();
+ 	if(ioctl(tty,PIO_UNIMAPCLR,&unimapinit))
+--- acon/acon.c.mdkpatch	Sat Jul  1 18:11:21 2000
++++ acon/acon.c	Sat Jul  1 18:13:34 2000
+@@ -1,6 +1,7 @@
+ /*
+  * acon a utility to facilitate the right to left writing
+  * Copyright 1999 Ahmed Abdel-Hamid Mohamed <ahmedam@mail.usa.com>
++ * I18N changes: 2000 Pablo Saratxaga <pablo@mandrakesoft.com>
+  *
+  * This program is free software; you can redistribute it and/or modify it under
+  * the terms of the GNU General Public License as published by the Free Software
+@@ -25,6 +26,7 @@
+ #include <linux/kd.h>
+ #include <string.h>
+ #include <ctype.h>
++#include <locale.h>
+ #include "acon.h"
+ #include "child.h"
+ #include "arabicfont.h"
+@@ -37,6 +39,7 @@
+ 	int i,tty,useunicode=0;
+ 	char *fontf=0,*translationf=0,*keymapf=0;
+ 
++	setlocale(LC_ALL,"");
+ 	get_ids();
+ 	set_user_id();
+ 
