@@ -1,28 +1,23 @@
-%define	name	acon
-%define	version	1.0.5
-%define	release	%mkrel 14
 # Arch-independent stuff which ought to be in DATADIR
 %define kbddir	%{_prefix}/lib/kbd
 %define acondir	%{_prefix}/lib/acon
 
 Summary:	Arabic support for linuxconsole
 Summary(ar):	دعم اللغة العربية في لينكس (للشاشات النصّية)
-Name:		%{name}
-Version:	%{version}
-Release:	%{release}
+Name:		acon
+Version:	1.0.5
+Release:	16
 License:	GPLv2+
 Group:		System/Internationalization
-Source:		http://members.tripod.com/ahmedahamid/arabic/acon-%{version}.tar.bz2
+Url:		http://members.tripod.com/ahmedahamid/arabic/arabic.html
+Source0:	http://members.tripod.com/ahmedahamid/arabic/acon-%{version}.tar.bz2
 Source1:	%{name}.sh
 # author refuses to integrate Hebrew support, so we need to provide the
 # needed files ourselves and do some small patches
 Source2:	%{name}-1.0.4-mdk.tar.bz2
 Patch0:		%{name}-1.0.4-mdk.patch
 Patch1:		acon-1.0.5-fix-str-fmt.patch
-URL:		http://members.tripod.com/ahmedahamid/arabic/arabic.html
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-Requires(post): rpm-helper
-Requires(preun):rpm-helper
+Requires(post,preun):	rpm-helper
 
 %description
 The function of acon is to display arabic text from right to left,
@@ -34,8 +29,7 @@ in the word.
 واظهار الاشكال الصحيحة للأحرف حسب موقعها في الكلمة.
 
 %prep
-%setup -q -n %{name} -a2
-
+%setup -qn %{name} -a2
 %patch0 -p1 -b .mdkpatch
 %patch1 -p0 -b .str
 
@@ -44,7 +38,6 @@ in the word.
 %make CFLAGS="%{optflags}"
 
 %install
-rm -rf %{buildroot}
 install -d %{buildroot}%{_bindir}
 %makeinstall_std
 
@@ -77,9 +70,6 @@ mkdir -p %{buildroot}%{kbddir}/keymaps/mac
 )
 %endif
 
-%clean
-rm -rf %{buildroot}
-
 %post
 %_post_service %{name}
 
@@ -87,7 +77,6 @@ rm -rf %{buildroot}
 %_preun_service %{name}
 
 %files
-%defattr(-,root,root)
 %doc doc/* README* AUTHORS CHANGES COPYING
 %config(noreplace) %{_initrddir}/%{name}
 %{_bindir}/%{name}
@@ -101,4 +90,4 @@ rm -rf %{buildroot}
 %endif
 %ifarch ppc
 %{kbddir}/keymaps/mac/*
-%endif
+
