@@ -1,0 +1,15 @@
+[Unit]
+Description=This package loads the arabic support for the Linux console  allowing right-to-left display of Arabic/Farsi/Hebrew text
+Requires=rpcbind.service
+After=syslog.target network.target rpcbind.service
+
+[Service]
+Type=forking
+RemainAfterExit=yes
+EnvironmentFile=/etc/sysconfig/network
+EnvironmentFile=/etc/sysconfig/i18n
+ExecStart=/usr/bin/acon.launcher
+
+
+[Install]
+WantedBy=multi-user.target
