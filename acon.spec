@@ -5,7 +5,7 @@
 Summary:	Arabic support for linuxconsole
 Name:		acon
 Version:	1.0.5
-Release:	17
+Release:	20
 License:	GPLv2+
 Group:		System/Internationalization
 Source:		http://members.tripod.com/ahmedahamid/arabic/acon-%{version}.tar.bz2
@@ -51,14 +51,14 @@ mkdir -p %{buildroot}%{kbddir}/keymaps/i386/qwerty
  gzip -9 *map
 )
 
-%clean
-
 %post
-%_post_service %{name}
+%systemd_post %{name}.service
 
 %preun
-%_preun_service %{name}
+%systemd_preun %{name}.service
 
+%postun
+%systemd_postun_with_restart %{name}.service
 %files
 %doc doc/* README* AUTHORS CHANGES COPYING
 %{_unitdir}/%{name}.service
