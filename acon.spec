@@ -5,7 +5,7 @@
 Summary:	Arabic support for linuxconsole
 Name:		acon
 Version:	1.0.5
-Release:	20
+Release:	21
 License:	GPLv2+
 Group:		System/Internationalization
 Source:		http://members.tripod.com/ahmedahamid/arabic/acon-%{version}.tar.bz2
