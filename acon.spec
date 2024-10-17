@@ -16,7 +16,7 @@ Source3:	%{name}.launcher
 Source2:	%{name}-1.0.4-mdk.tar.bz2
 Patch0:		%{name}-1.0.4-mdk.patch
 Patch1:		acon-1.0.5-fix-str-fmt.patch
-URL:		http://members.tripod.com/ahmedahamid/arabic/arabic.html
+URL:		https://members.tripod.com/ahmedahamid/arabic/arabic.html
 Requires(post): rpm-helper
 Requires(preun):rpm-helper
 
