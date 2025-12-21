@@ -20,6 +20,7 @@ URL:		https://members.tripod.com/ahmedahamid/arabic/arabic.html
 Requires(post): rpm-helper
 Requires(preun):rpm-helper
 
+BuildRequires:	make
 %description
 The function of acon is to display arabic text from right to left,
 and process it to change the letter shape according to its position
